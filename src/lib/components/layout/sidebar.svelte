@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { page } from '$app/stores';
+    import { page } from '$app/state';
     import { House, History, Users, ChartColumn, Beer, Info } from '@lucide/svelte';
     import { cn } from '$lib/utils';
     import { Button } from '$lib/components/ui/button';
@@ -27,7 +27,7 @@
                 href={nav.href}
                 class={cn(
                     "flex items-center gap-3 rounded-md px-4 py-3 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground",
-                    $page.url.pathname === nav.href ? "bg-accent text-accent-foreground" : "text-muted-foreground"
+                    page.url.pathname === nav.href ? "bg-accent text-accent-foreground" : "text-muted-foreground"
                 )}
             >
                 <nav.icon class="h-5 w-5" />
@@ -36,7 +36,12 @@
         {/each}
     </nav>
 
-    <Button href="/auth/login">Login</Button>
+    {#if page.data.session?.user}
+        <p>{page.data.session.user.email}</p>
+        <Button href="/auth/logout" variant="outline" class="w-full mb-4">Logout</Button>
+    {:else}
+        <Button href="/auth/login">Login</Button>
+    {/if}
 
     <!-- Font: https://cisa.org.br/sua-saude/informativos/artigo/item/48-definicao-de-dose-padrao -->
     <div class="mt-auto rounded-lg bg-primary/10 p-4">

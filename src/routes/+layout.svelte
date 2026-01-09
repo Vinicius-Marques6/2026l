@@ -2,8 +2,27 @@
 	import './layout.css';
 	import Sidebar from '$lib/components/layout/sidebar.svelte';
 	import BottomNav from '$lib/components/layout/bottom-nav.svelte';
+  import { onMount } from 'svelte';
+  import { goto, invalidate } from '$app/navigation';
 
-	let { children } = $props();
+	let { data, children } = $props();
+
+    onMount(() => {
+        const {
+            data: { subscription }
+        } = data.supabase.auth.onAuthStateChange((_, newSession) => {
+            if(!newSession) {
+                setTimeout(() => {
+					goto('/', { invalidateAll: true });
+				});
+            }
+            if (newSession?.expires_at !== data.session?.expires_at) {
+				invalidate('supabase:auth');
+			}
+        })
+
+        return () => subscription.unsubscribe();
+    })
 
 </script>
 
