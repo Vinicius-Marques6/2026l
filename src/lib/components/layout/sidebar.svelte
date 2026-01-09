@@ -2,6 +2,7 @@
     import { page } from '$app/stores';
     import { House, History, Users, ChartColumn, Beer, Info } from '@lucide/svelte';
     import { cn } from '$lib/utils';
+    import { Button } from '$lib/components/ui/button';
     
     const navigations = [
         { name: 'Adicionar', href: '/', icon: House },
@@ -34,6 +35,8 @@
             </a>
         {/each}
     </nav>
+
+    <Button href="/auth/login">Login</Button>
 
     <!-- Font: https://cisa.org.br/sua-saude/informativos/artigo/item/48-definicao-de-dose-padrao -->
     <div class="mt-auto rounded-lg bg-primary/10 p-4">

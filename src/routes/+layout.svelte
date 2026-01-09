@@ -4,6 +4,7 @@
 	import BottomNav from '$lib/components/layout/bottom-nav.svelte';
 
 	let { children } = $props();
+
 </script>
 
 <div class="flex min-h-screen bg-background text-foreground">

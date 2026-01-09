@@ -6,6 +6,10 @@
     import * as Select from '$lib/components/ui/select';
     import * as Card from '$lib/components/ui/card';
     import { Plus, Beer } from '@lucide/svelte';
+
+    const { data } = $props();
+
+    $inspect(data.user);
     
     let selectedFriendId = $state("");
     let selectedDrinkId = $state("");
