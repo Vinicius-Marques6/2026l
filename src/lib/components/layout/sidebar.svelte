@@ -37,7 +37,6 @@
     </nav>
 
     {#if page.data.session?.user}
-        <p>{page.data.session.user.email}</p>
         <Button href="/auth/logout" variant="outline" class="w-full mb-4">Logout</Button>
     {:else}
         <Button href="/auth/login">Login</Button>

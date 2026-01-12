@@ -4,15 +4,10 @@
     import { Input } from '$lib/components/ui/input';
     import { Label } from '$lib/components/ui/label';
     import * as Card from '$lib/components/ui/card';
-    import { UserPlus, Users, Trash2 } from '@lucide/svelte';
+    import { UserPlus, Users } from '@lucide/svelte';
+    import { page } from '$app/state';
 
     let newFriendName = $state("");
-
-    function handleAddFriend() {
-        if (!newFriendName.trim()) return;
-        store.addFriend(newFriendName);
-        newFriendName = "";
-    }
 </script>
 
 <div class="flex flex-col gap-6">
@@ -23,7 +18,7 @@
 
     <div class="grid gap-6 md:grid-cols-2">
         <!-- Add Friend Form -->
-        <Card.Root class="border-primary/20 bg-card/50 backdrop-blur-sm h-fit">
+        <!-- <Card.Root class="border-primary/20 bg-card/50 backdrop-blur-sm h-fit">
             <Card.Header>
                 <Card.Title class="flex items-center gap-2">
                     <UserPlus class="h-4 w-4 text-primary" /> Adicionar Amigo
@@ -33,17 +28,16 @@
             <Card.Content class="space-y-4">
                 <div class="space-y-2">
                     <Label for="name">Nome</Label>
-                    <Input id="name" placeholder="Ex: João, Maria..." bind:value={newFriendName} onkeydown={(e) => e.key === 'Enter' && handleAddFriend()} />
+                    <Input id="name" placeholder="Ex: João, Maria..." bind:value={newFriendName} />
                 </div>
                 <Button 
                     class="w-full bg-primary text-white font-bold"
-                    onclick={handleAddFriend}
-                    disabled={!newFriendName.trim()}
+                    disabled
                 >
                     Adicionar
                 </Button>
             </Card.Content>
-        </Card.Root>
+        </Card.Root> -->
 
         <!-- Friends List -->
         <Card.Root>
@@ -75,4 +69,10 @@
             </Card.Content>
         </Card.Root>
     </div>
+
+    {#if page.data.session?.user}
+        <Button href="/auth/logout" variant="outline" class="w-full mb-4">Logout</Button>
+    {:else}
+        <Button href="/auth/login">Login</Button>
+    {/if}
 </div>

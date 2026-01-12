@@ -1,4 +1,5 @@
 import { redirect } from '@sveltejs/kit';
+import { getOrLinkUserProfile } from '$lib/auth/index.js';
 
 export const GET = async (event) => {
 	const {
@@ -11,7 +12,10 @@ export const GET = async (event) => {
   if (code) {
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
-      redirect(303, `/${next.slice(1)}`);
+      const profile = await getOrLinkUserProfile(event.locals);
+      if (profile) {
+        redirect(303, `/${next.slice(1)}`);
+      }
     }
   }
 

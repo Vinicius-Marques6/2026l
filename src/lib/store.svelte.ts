@@ -1,9 +1,7 @@
-// In-memory store using Svelte 5 Runes
-import { SvelteDate } from "svelte/reactivity";
-
 export type Friend = {
     id: string;
     name: string;
+    avatarUrl?: string;
 };
 
 export type DrinkType = {
@@ -25,18 +23,9 @@ export type Log = {
     notes?: string;
 };
 
-// Initial Data
-const initialDrinks: DrinkType[] = [
-    { id: "1", name: "Cerveja (Lata)", abv: 4.7, defaultVolume: 350 },
-    { id: "2", name: "Cerveja (Garrafa)", abv: 5, defaultVolume: 250 },
-    { id: "3", name: "Vinho", abv: 12, defaultVolume: 150 },
-    { id: "4", name: "Shot (Vodka/Tequila)", abv: 40, defaultVolume: 50 },
-    { id: "5", name: "Gin Tônica", abv: 8, defaultVolume: 250 }, // estimativa
-];
-
 function createStore() {
     let friends = $state<Friend[]>([]);
-    let drinks = $state<DrinkType[]>(initialDrinks);
+    let drinks = $state<DrinkType[]>([]);
     let logs = $state<Log[]>([]);
 
     return {
@@ -44,36 +33,20 @@ function createStore() {
         get drinks() { return drinks; },
         get logs() { return logs; },
 
-        addFriend(name: string) {
-            const id = crypto.randomUUID();
-            friends.push({ id, name });
-            return id;
-        },
-
-        addLog(friendId: string, drinkId: string, quantity: number, notes?: string) {
-            const drink = drinks.find(d => d.id === drinkId);
-            if (!drink) return; // Safely handle if drink is not found
-
-            const id = crypto.randomUUID();
-            const totalVolume = drink.defaultVolume * quantity;
-            
-            // Calculation: volume (ml) * (abv / 100) * 0.789 (density g/ml) / 10 (g per dose)
-            const gramsOfAlcohol = totalVolume * (drink.abv / 100) * 0.789;
-            const doses = parseFloat((gramsOfAlcohol / 10).toFixed(1)); // Using 10g per dose
-
-            console.log(`Logging: Friend ${friendId}, Drink ${drink.name}, Quantity ${quantity}, Total Volume ${totalVolume}ml, Doses ${doses}`);
-            
-            logs.push({
-                id,
-                friendId,
-                drinkName: drink.name,
-                volume: totalVolume,
-                quantity,
-                abv: drink.abv,
-                doses,
-                timestamp: new Date(),
-                notes
-            });
+        sync(data: any) {
+            friends = data.profiles.map((p: any) => ({ id: p.id, name: p.name, avatarUrl: p.avatarUrl }));
+            drinks = data.drinks.map((d: any) => ({ id: d.id, name: d.name, abv: d.alcoholContent, defaultVolume: d.defaultVolume }));
+            logs = data.logs.map((l: any) => ({
+                id: l.id,
+                friendId: l.profileId,
+                drinkName: l.drinkType?.name || 'Unknown',
+                volume: l.volume,
+                quantity: l.quantity,
+                abv: l.drinkType?.alcoholContent || 0,
+                doses: l.calculatedDoses,
+                timestamp: new Date(l.createdAt),
+                notes: l.notes
+            }));
         },
 
         getStats() {
@@ -87,10 +60,11 @@ function createStore() {
                     stats[l.friendId] += l.doses;
                 }
             }
+
             return Object.entries(stats)
                 .map(([friendId, totalDoses]) => ({
                     friendId,
-                    name: friends.find(f => f.id === friendId)?.name ?? "Unknown",
+                    name: friends.find(f => f.id == friendId)?.name ?? "Unknown",
                     totalDoses
                 }))
                 .sort((a, b) => b.totalDoses - a.totalDoses);
